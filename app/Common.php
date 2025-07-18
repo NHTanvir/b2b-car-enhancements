@@ -116,4 +116,18 @@ class Common extends Base {
 			}
 		}
 	}
+
+	public function prevent_login_unless_approved( $user, $username, $password ) {
+		if (is_a($user, 'WP_User')) {
+			$approval_status = get_user_meta($user->ID, 'approval_status', true);
+			if ($approval_status !== 'approved') {
+				return new WP_Error('approval_pending', __('<strong>ERROR:</strong> Your account is pending approval.'));
+			}
+		}
+		return $user;
+	}
+
+	public function approval_status( $user_id ) {
+		update_user_meta($user_id, 'approval_status', 'pending');
+	}
 }

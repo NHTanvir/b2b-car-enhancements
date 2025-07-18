@@ -395,4 +395,68 @@ class Shortcode extends Base {
         <?php
         return ob_get_clean();
     }
+
+    public function display_pending_clients_dashboard() {
+        if (!current_user_can('manage_options')) {
+            return 'Access Denied';
+        }
+
+        $users = get_users([
+            'meta_key' => 'approval_status',
+            'meta_value' => 'pending'
+        ]);
+
+        ob_start();
+        echo '<table class="wp-list-table widefat fixed striped">';
+        echo '<thead><tr><th>User</th><th>Email</th><th>Actions</th></tr></thead><tbody>';
+        foreach ($users as $user) {
+            echo '<tr id="user-row-' . $user->ID . '">';
+            echo '<td>' . esc_html($user->display_name) . '</td>';
+            echo '<td>' . esc_html($user->user_email) . '</td>';
+            echo '<td>
+                    <button class="button approve-button" data-user-id="' . $user->ID . '">Approve</button>
+                    <button class="button reject-button" data-user-id="' . $user->ID . '">Reject</button>
+                </td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+
+        // Add JavaScript for AJAX calls
+        ?>
+        <script>
+        jQuery(document).ready(function($) {
+            $('.approve-button').click(function() {
+                var userId = $(this).data('user-id');
+                $.post(ajaxurl, {
+                    action: 'approve_user',
+                    user_id: userId,
+                    nonce: '<?php echo wp_create_nonce("approve_user_nonce"); ?>'
+                }, function(response) {
+                    if (response.success) {
+                        $('#user-row-' + userId).fadeOut();
+                    } else {
+                        alert(response.data);
+                    }
+                });
+            });
+
+            $('.reject-button').click(function() {
+                var userId = $(this).data('user-id');
+                $.post(ajaxurl, {
+                    action: 'reject_user',
+                    user_id: userId,
+                    nonce: '<?php echo wp_create_nonce("reject_user_nonce"); ?>'
+                }, function(response) {
+                    if (response.success) {
+                        $('#user-row-' + userId).fadeOut();
+                    } else {
+                        alert(response.data);
+                    }
+                });
+            });
+        });
+        </script>
+        <?php
+        return ob_get_clean();
+    }
 }

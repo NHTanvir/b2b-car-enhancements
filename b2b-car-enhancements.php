@@ -185,6 +185,7 @@ final class Plugin {
 			$shortcode->register( 'b2b_reservation_count', 'reservation_count' );
 			$shortcode->register( 'b2b_voiture_count', 'b2b_voiture_count' );
 			$shortcode->register( 'liste_clients', 'client_lists' );
+			$shortcode->register(' custom_pending_clients', 'display_pending_clients_dashboard');
 		endif;
 
 		/**
@@ -205,12 +206,16 @@ final class Plugin {
 		$common->filter( 'auth_cookie_expiration', 'extend_auth_cookie_duration', 99, 3 );
 		$common->action( 'template_redirect', 'protect_car_content' );
 		$common->action( 'init', 'set_cookie' );
+		$common->filter( 'authenticate', 'prevent_login_unless_approved', 30, 3 );
+		$common->action( 'user_register', 'approval_status', 10 ,1 );
 
 		/**
 		 * AJAX related hooks
 		 */
 		$ajax = new App\AJAX( $this->plugin );
 		$ajax->priv( 'toggle_favorite', 'handle_toggle_favorite_ajax' );
+		$ajax->all( 'approve_user', 'approve_user_callback' );
+		$ajax->all( 'reject_user', 'reject_user_callback' );
 	}
 
 	/**
