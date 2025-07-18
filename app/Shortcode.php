@@ -102,22 +102,23 @@ class Shortcode extends Base {
             return '<p>Please log in to see your favorites.</p>';
         }
 
-        $user_id    = get_current_user_id();
-        $favorites  = get_user_meta( $user_id, 'b2b_favorites', true );
+        $user_id   = get_current_user_id();
+        $favorites = get_user_meta( $user_id, 'b2b_favorites', true );
 
-        if ( empty($favorites) || !is_array($favorites) ) {
+        if ( empty( $favorites ) || ! is_array( $favorites ) ) {
             return '<p>You have not added any cars to your favorites yet.</p>';
         }
 
         $args = [
-            'post_type'         => B2B_CAR_POST_TYPE,
-            'post__in'          => $favorites,
-            'posts_per_page'    => -1,
-            'orderby'           => 'post__in'
+            'post_type'      => B2B_CAR_POST_TYPE,
+            'post__in'       => $favorites,
+            'posts_per_page' => -1,
+            'orderby'        => 'post__in',
         ];
-        $query = new \WP_Query($args);
 
-        if ( !$query->have_posts() ) {
+        $query = new \WP_Query( $args );
+
+        if ( ! $query->have_posts() ) {
             return '<p>No favorited cars found.</p>';
         }
 
@@ -125,16 +126,24 @@ class Shortcode extends Base {
         echo '<ul class="b2b_favorites">';
         while ( $query->have_posts() ) {
             $query->the_post();
+            $post_id = get_the_ID();
+
             printf(
-                '<li class="b2b_favorite"><a href="%s">%s</a></li>',
-                esc_url(get_permalink()),
-                esc_html(get_the_title())
+                '<li class="b2b_favorite" id="favorite-post-%d">
+                    <a href="%s">%s</a>
+                    <a href="#" class="b2b-favorite-btn is-favorite" data-post-id="%d" style="margin-left: 10px;">★ Remove</a>
+                </li>',
+                esc_attr($post_id),
+                esc_url( get_permalink() ),
+                esc_html( get_the_title() ),
+                esc_attr($post_id)
             );
         }
         echo '</ul>';
         wp_reset_postdata();
         return ob_get_clean();
     }
+
 
     public function get_user_vat_shortcode() {
         if (!is_user_logged_in()) return '';

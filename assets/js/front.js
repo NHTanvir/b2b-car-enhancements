@@ -60,6 +60,7 @@ jQuery(function($){
 
     $('body').on('click', '.b2b-favorite-btn', function(e) {
         e.preventDefault();
+        e.stopPropagation(); 
         var button = $(this);
         var post_id = button.data('post-id');
         
@@ -78,11 +79,16 @@ jQuery(function($){
                 if (response.success) {
                     button.text(response.data.text);
                     button.toggleClass('is-favorite');
+
+                    if (!button.hasClass('is-favorite')) {
+                        button.closest('.b2b_favorite').fadeOut();
+                    }
                 } else {
                     alert(response.data.message);
                     button.text('Error');
                 }
             }
+
         });
     });
 })
