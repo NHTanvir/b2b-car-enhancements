@@ -140,6 +140,10 @@ final class Plugin {
 			$admin->action( 'admin_footer', 'modal' );
 			$admin->action( 'plugins_loaded', 'i18n' );
 			$admin->action( 'admin_enqueue_scripts', 'enqueue_scripts' );
+			$admin->filter( 'bulk_actions-users', 'bulk_actions' );
+			$admin->filter( 'handle_bulk_actions-users', 'handle_bulk_actions', 10, 3 );
+			$admin->action( 'admin_init', 'handle_individual_action' );
+			$admin->action( 'admin_notices', 'admin_notice' );
 
 			/**
 			 * Settings related hooks
@@ -180,6 +184,7 @@ final class Plugin {
 			$shortcode->register( 'b2b_reservation_list', 'reservation_list' );
 			$shortcode->register( 'b2b_reservation_count', 'reservation_count' );
 			$shortcode->register( 'b2b_voiture_count', 'b2b_voiture_count' );
+			$shortcode->register( 'liste_clients', 'client_lists' );
 		endif;
 
 		/**
@@ -199,6 +204,7 @@ final class Plugin {
 		$common->action( 'template_redirect', 'redirect_to_complete_profile' );
 		$common->filter( 'auth_cookie_expiration', 'extend_auth_cookie_duration', 99, 3 );
 		$common->action( 'template_redirect', 'protect_car_content' );
+		$common->action( 'init', 'set_cookie' );
 
 		/**
 		 * AJAX related hooks

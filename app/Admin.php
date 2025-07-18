@@ -90,18 +90,25 @@ class Admin extends Base {
 	public function add_custom_user_columns( $columns ) {
         $columns['b2b_phone_number'] 	= 'Phone Number';
         $columns['b2b_commercial_name'] = 'Company Name';
+		$columns['user_approved'] 	= 'Approval Status';
+    	$columns['approval_action'] = 'Action';
+
         return $columns;
     }
 
-    public function render_custom_user_column_data( $value, $column_name, $user_id ) {
-        switch ( $column_name ) {
-            case 'b2b_phone_number':
-                return get_user_meta( $user_id, 'b2b_phone_number', true );
-            case 'b2b_commercial_name':
-                return get_user_meta( $user_id, 'b2b_commercial_name', true );
-        }
-        return $value;
+public function render_custom_user_column_data( $value, $column_name, $user_id ) {
+    if ( $column_name === 'b2b_phone_number' ) {
+        return get_user_meta( $user_id, 'b2b_phone_number', true );
+    } elseif ( $column_name === 'b2b_commercial_name' ) {
+        return get_user_meta( $user_id, 'b2b_commercial_name', true );
+    } elseif ( $column_name === 'user_approved' ) {
+        $approved = get_user_meta( $user_id, 'new_user_approve', true );
+        return $approved === 'approved' ? '✅ Approved' : '❌ Pending';
     }
+
+    return $value;
+}
+
     
     public function add_reservation_columns( $columns ) {
         $columns['b2b_phone_number'] 	= 'Client Phone';
@@ -140,4 +147,79 @@ class Admin extends Base {
         echo "<p><strong>Total Car Reservations:</strong> " . intval($car_reservations) . "</p>";
         echo "<p><small>Data refreshed on page load.</small></p>";
     }
+
+	public function bulk_actions( $bulk_actions ) {
+		$bulk_actions['approve_users'] = __( 'Approve Users', 'b2b-car-enhancements' );
+		$bulk_actions['reject_users']  = __( 'Reject Users', 'b2b-car-enhancements' );
+		return $bulk_actions;
+	}
+
+	public function handle_bulk_actions( $redirect_to, $doaction, $user_ids ) {
+		if ( 'approve_users' === $doaction ) {
+			foreach ( $user_ids as $user_id ) {
+				update_user_meta( $user_id, 'approval_status', 'approved' );
+				update_user_meta( $user_id, 'new_user_approve', 'approved' );
+				update_user_meta( $user_id, 'account_status', 'approved' );
+			}
+			return add_query_arg( 'approved_users', count( $user_ids ), $redirect_to );
+		}
+
+		if ( 'reject_users' === $doaction ) {
+			foreach ( $user_ids as $user_id ) {
+				wp_delete_user( $user_id );
+			}
+			return add_query_arg( 'rejected_users', count( $user_ids ), $redirect_to );
+		}
+
+		return $redirect_to;
+	}
+
+	public function handle_individual_action() {
+		if ( ! current_user_can( 'edit_users' ) ) {
+			return;
+		}
+
+		if ( isset( $_GET['action'], $_GET['user_id'] ) ) {
+			$user_id = absint( $_GET['user_id'] );
+
+			if ( 'approve_user' === $_GET['action'] && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'approve_user_' . $user_id ) ) {
+				update_user_meta( $user_id, 'approval_status', 'approved' );
+				update_user_meta( $user_id, 'new_user_approve', 'approved' );
+				update_user_meta( $user_id, 'account_status', 'approved' );
+
+				wp_safe_redirect(
+					add_query_arg(
+						'user_approved_single',
+						1,
+						remove_query_arg( [ 'action', 'user_id', '_wpnonce' ] )
+					)
+				);
+				exit;
+			}
+
+			if ( 'reject_user' === $_GET['action'] && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'reject_user_' . $user_id ) ) {
+				wp_delete_user( $user_id );
+
+				wp_safe_redirect(
+					add_query_arg(
+						'user_rejected_single',
+						1,
+						remove_query_arg( [ 'action', 'user_id', '_wpnonce' ] )
+					)
+				);
+				exit;
+			}
+		}
+	}
+
+	public function admin_notice() {
+		if ( isset( $_GET['user_approved_single'] ) ) {
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'User approved successfully.', 'b2b-car-enhancements' ) . '</p></div>';
+		}
+
+		if ( isset( $_GET['user_rejected_single'] ) ) {
+			echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__( 'User rejected and deleted successfully.', 'b2b-car-enhancements' ) . '</p></div>';
+		}
+	}
+	
 }

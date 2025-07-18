@@ -101,4 +101,19 @@ class Common extends Base {
             }
         }
     }
+
+	public function set_cookie() {
+		if ( isset($_COOKIE['b2b_pending_approval']) ) {
+			$user_id = intval($_COOKIE['b2b_pending_approval']);
+
+			if ( $user_id && get_user_by('id', $user_id) ) {
+
+				$approval_status = get_user_meta( $user_id, 'new_user_approve', true );
+
+				if ( $approval_status === 'approved' ) {
+					setcookie( 'b2b_pending_approval', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
+				}
+			}
+		}
+	}
 }

@@ -313,4 +313,86 @@ class Shortcode extends Base {
     public function b2b_voiture_count() {
         return wp_count_posts('voiture')->publish;
     }
+
+    public function client_lists() {
+        $user_query = new WP_User_Query([
+            'role'    => '',
+            'orderby' => 'registered',
+            'order'   => 'DESC'
+        ]);
+
+        if (empty($user_query->get_results())) {
+            return '<p>Aucun client trouvé.</p>';
+        }
+
+        ob_start();
+        ?>
+        <div class="client-search-wrapper">
+            <input type="text" id="clientSearch" placeholder="Rechercher par nom, prénom, email ou TVA..." />
+        </div>
+
+        <table class="client-table" id="clientTable">
+            <thead>
+                <tr>
+                    <th>Nom complet</th>
+                    <th>Email</th>
+                    <th>Numéro de TVA</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
+            foreach ($user_query->get_results() as $user) {
+                $first_name  = get_user_meta($user->ID, 'first_name', true);
+                $last_name   = get_user_meta($user->ID, 'last_name', true);
+                $tva_number  = get_user_meta($user->ID, 'tva_number', true);
+                $email       = $user->user_email;
+                $approval = get_user_meta($user->ID, 'new_user_approve', true) ?: 'pending';
+                $status = $approval; // keep this if you still want to use $status separately
+                $status_label = [
+                    'approved' => '<span style="color:green;">Approuvé</span>',
+                    'denied' => '<span style="color:red;">Rejeté</span>',
+                    'pending' => '<span style="color:orange;">En attente</span>'
+                ][$status];
+
+                echo '<tr>';
+                echo '<td data-label="Nom complet">' . esc_html($first_name . ' ' . $last_name) . '</td>';
+                echo '<td data-label="Email">' . esc_html($email) . '</td>';
+                echo '<td data-label="Numéro de TVA">' . esc_html($tva_number) . '</td>';
+                echo '<td data-label="Statut">' . $status_label . '</td>';
+                echo '<td data-label="Actions">';
+
+                if ($approval === 'pending') {
+                    echo '<a style="color:green;" href="?approve_user=' . $user->ID . '" onclick="return confirm(\'Approuver ce client ?\');">Approuver</a> | ';
+                    echo '<a style="color:red;" href="?reject_user=' . $user->ID . '" onclick="return confirm(\'Rejeter ce client ?\');">Rejeter</a>';
+                } else {
+                    echo '<a href="?delete_user=' . $user->ID . '" onclick="return confirm(\'Supprimer ce client ?\');">Supprimer</a>';
+                }
+
+                echo '</td>';
+                echo '</tr>';
+            }
+            ?>
+            </tbody>
+        </table>
+
+        <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("clientSearch");
+            const rows = document.querySelectorAll("#clientTable tbody tr");
+
+            searchInput.addEventListener("input", function () {
+                const searchTerm = this.value.toLowerCase().trim();
+
+                rows.forEach(row => {
+                    const text = row.innerText.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? "" : "none";
+                });
+            });
+        });
+        </script>
+        <?php
+        return ob_get_clean();
+    }
 }
