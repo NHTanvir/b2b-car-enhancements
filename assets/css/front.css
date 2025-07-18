@@ -1,0 +1,25 @@
+#plugin-client-modal {
+    position: fixed;
+    background: #c8c8c859;
+    top: 0;
+    border: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#plugin-client-modal-loader {
+    position: absolute;
+}
+ul.b2b_favorites {
+    list-style: none;
+    padding: 0;
+}
+li.b2b_favorite {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}

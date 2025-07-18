@@ -1,0 +1,69 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "21b89a43c687d5e990903e6b4c5fdf88",
+    "packages": [
+        {
+            "name": "codexpert/plugin",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/codexpertio/plugin.git",
+                "reference": "c9d2cfd3fd438f39cbe2472a98e189fe251b0c86"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/codexpertio/plugin/zipball/c9d2cfd3fd438f39cbe2472a98e189fe251b0c86",
+                "reference": "c9d2cfd3fd438f39cbe2472a98e189fe251b0c86",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Codexpert",
+                    "email": "hello@codexpert.io",
+                    "homepage": "https://codexpert.io",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Plugin tools for Codexpert",
+            "homepage": "https://bitbucket.org/codexpertio/codexpert-plugin",
+            "keywords": [
+                "codexpert",
+                "plugin"
+            ],
+            "support": {
+                "issues": "https://github.com/codexpertio/plugin/issues",
+                "source": "https://github.com/codexpertio/plugin/tree/master"
+            },
+            "time": "2025-04-29T08:44:48+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "codexpert/plugin": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.6.0"
+}

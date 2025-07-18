@@ -1,0 +1,19 @@
+{
+    "authors": [
+        {
+            "name": "Worzen",
+            "email": "hi@codexpert.io"
+        }
+    ],
+    "require": {
+        "codexpert/plugin": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Worzen\\B2B_Car_Enhancements\\" : "classes/",
+            "Worzen\\B2B_Car_Enhancements\\App\\" : "app/",
+            "Worzen\\B2B_Car_Enhancements\\API\\" : "api/"
+        },
+        "files": [ "inc/functions.php" ]
+    }
+}
